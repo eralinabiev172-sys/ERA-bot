@@ -1,16 +1,30 @@
-# React + Vite
+# Era Bot
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend with a Python backend for Gemini chat.
 
-Currently, two official plugins are available:
+## Local run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Install frontend dependencies:
+   `npm install`
+2. Install backend dependencies:
+   `pip install -r requirements.txt`
+3. Create `.env` from `.env.example` and add `GEMINI_API_KEY`
+4. Start backend:
+   `python assistant_backend_api.py`
+5. Start frontend:
+   `npm run dev`
 
-## React Compiler
+## Vercel deploy
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Frontend is deployed as a normal Vite app.
+- Backend is deployed as a Vercel serverless function through [api/index.py](./api/index.py).
+- In Vercel Project Settings add:
+  - `GEMINI_API_KEY`
+- Do not use `VITE_GEMINI_API_KEY` in production because `VITE_*` variables are exposed to the browser.
 
-## Expanding the ESLint configuration
+## API behavior
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Local development uses `http://127.0.0.1:8000` by default.
+- Production on Vercel uses relative routes:
+  - `/api/health`
+  - `/api/chat`

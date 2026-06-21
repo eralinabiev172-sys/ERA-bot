@@ -22,11 +22,15 @@ import {
 } from 'lucide-react';
 import './App.css';
 
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || `http://${window.location.hostname || '127.0.0.1'}:8000`
-).replace(/\/$/, '');
-const API_URL = `${API_BASE_URL}/api/chat`;
-const API_HEALTH_URL = `${API_BASE_URL}/api/health`;
+const FALLBACK_LOCAL_API_URL = `http://${window.location.hostname || '127.0.0.1'}:8000`;
+const IS_LOCAL_ENV = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const API_BASE_URL = (import.meta.env.VITE_API_URL || (IS_LOCAL_ENV ? FALLBACK_LOCAL_API_URL : '')).replace(/\/$/, '');
+const API_URL = API_BASE_URL ? `${API_BASE_URL}/api/chat` : '/api/chat';
+const API_HEALTH_URL = API_BASE_URL ? `${API_BASE_URL}/api/health` : '/api/health';
+const BACKEND_HINT = API_BASE_URL ? `Backend endpoint: ${API_BASE_URL}` : 'Backend endpoint: /api';
+const BACKEND_HELP_TEXT = IS_LOCAL_ENV
+  ? 'Local AI mode: run backend with python assistant_backend_api.py'
+  : 'Vercel mode: add GEMINI_API_KEY in Project Settings.';
 
 const VOICE_PROFILES = {
   peer: {
@@ -157,11 +161,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('editor');
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
-  const [terminalLogs, setTerminalLogs] = useState([
-    `Backend endpoint: ${API_BASE_URL}`,
-    'Терминал готов к работе.',
-    'Для AI-запросов запусти backend: python assistant_backend_api.py',
-  ]);
+  const [terminalLogs, setTerminalLogs] = useState([BACKEND_HINT, 'Terminal ready.', BACKEND_HELP_TEXT]);
   const [isCopiedCode, setIsCopiedCode] = useState(false);
 
   const canvasRef = useRef(null);
@@ -407,7 +407,9 @@ export default function App() {
 
       const errorMessage =
         error instanceof TypeError
-          ? `Не могу подключиться к backend по адресу ${API_BASE_URL}. Запусти его в папке проекта: python assistant_backend_api.py`
+          ? IS_LOCAL_ENV
+            ? `Cannot connect to backend at ${API_BASE_URL}. Run it in the project folder: python assistant_backend_api.py`
+            : 'Cannot connect to the Vercel API backend. Check the serverless deployment and the GEMINI_API_KEY environment variable.'
           : error.message;
 
       setMessages((current) => [
@@ -866,7 +868,9 @@ export default function App() {
 
           <footer className="workspace-info">
             <span>INFO</span>
-            {`Backend: ${API_BASE_URL}. Запусти assistant_backend_api.py отдельно, чтобы чат и локальные команды работали стабильно.`}
+            {IS_LOCAL_ENV
+              ? `Backend: ${API_BASE_URL}. Run assistant_backend_api.py separately so chat and local commands work reliably.`
+              : 'Backend: /api. On Vercel the backend runs as a serverless API and needs GEMINI_API_KEY in Project Settings.'}
           </footer>
         </section>
       </main>

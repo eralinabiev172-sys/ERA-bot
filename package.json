@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:full": "node scripts/dev-full.mjs",
+    "dev:backend": "python assistant_backend_api.py",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
